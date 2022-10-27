@@ -1,4 +1,5 @@
-# DP-project-2
+# Cruce
+
 For this project we chose to implement a website where you can play "Cruce".
 
 ## Project Overview
