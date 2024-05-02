@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package protocol;
+
+option go_package = "./protobufs/protocol/game_protocol";
+
+message GameProtocolHeader {
+	uint32 data_length = 1;
+	string command = 2;
+}
+

@@ -1,0 +1,10 @@
+FROM migrate/migrate
+
+ARG DATABASE_URL
+
+ENV DATABASE_URL ${DATABASE_URL}
+
+COPY ./migrations /migrations
+
+ENTRYPOINT [ "migrate", "-path", "/migrations", "-database" ]
+CMD ["${DATABASE_URL} up"]

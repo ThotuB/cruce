@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "protocol/game/header.proto";
+import "protocol/game/misc.proto";
+
+package protocol;
+
+option go_package = "./protobufs/protocol/game_protocol";
+
+message GameServerProtocol {
+	GameProtocolHeader header = 1;
+}
+

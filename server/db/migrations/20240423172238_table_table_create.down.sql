@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS tables;
+DROP TYPE IF EXISTS game_mode;
+DROP TYPE IF EXISTS points;
+DROP TYPE IF EXISTS turn_time;

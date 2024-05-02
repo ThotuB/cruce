@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package cruce;
+
+option go_package = "./protobufs";
+
+service TableService {
+	rpc Create(CreateTableRequest) returns (CreateTableResponse);
+	rpc Join(JoinTableRequest) returns (JoinTableResponse);
+	rpc Leave(LeaveTableRequest) returns (LeaveTableResponse);
+	rpc Get(GetTableRequest) returns (GetTableResponse); 
+	rpc ListAll(ListAllTablesRequest) returns (ListAllTablesResponse);
+}
+
+message CreateTableRequest {
+	GameMode mode = 1;
+	Points points = 2;
+	Time time = 3;
+	bool iber = 4;
+	bool cheating = 5;
+	optional string password = 6;
+	string user_id = 7;
+}
+
+message CreateTableResponse {
+	int32 table_id = 1;
+}
+
+enum GameMode {
+	GAME_MODE_1_V_1 = 0;
+	GAME_MODE_1_V_1_V_1 = 1;
+	GAME_MODE_2_V_2 = 2;
+}
+
+enum Points {
+	POINTS_6 = 0;
+	POINTS_11 = 1;
+	POINTS_21 = 2;
+}
+
+enum Time {
+	TIME_5S = 0;
+	TIME_15S = 1;
+	TIME_30S = 2;
+}
+
+message ListAllTablesRequest {}
+
+message ListAllTablesResponse {
+	repeated Table tables = 1;
+}
+
+message Table {
+	int32 id = 1;
+	GameMode mode = 2;
+	Points points = 3;
+	Time time = 4;
+	bool iber = 5;
+	bool cheating = 6;
+	optional string password = 7;
+
+}
+
+message JoinTableRequest {
+	int32 id = 1;
+}
+
+message JoinTableResponse {}
+
+message LeaveTableRequest {
+	int32 id = 1;
+}
+
+message LeaveTableResponse {}
+
+message GetTableRequest {
+	int32 id = 1;
+}
+
+message GetTableResponse {
+	Table table = 1;
+}

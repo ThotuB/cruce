@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package protocol;
+
+option go_package = "./protobufs/protocol/game_protocol";
+
+message Card {
+	CardSuit suit = 1;
+	CardValue value = 2;
+}
+
+enum CardSuit {
+	ROSU = 0;
+	DUBA = 1;
+	VERDE = 2;
+	GHINDA = 3;
+}
+
+enum CardValue {
+	ACE = 0;
+	TEN = 1;
+	KING = 2;
+	QUEEN = 3;
+	JACK = 4;
+	NINE = 5;
+}
+

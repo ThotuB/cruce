@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package protocol;
+
+option go_package = "./protobufs/protocol/chat_protocol";
+
+message ChatServerProtocol {
+	Header header = 1;
+	MessageSend message_send = 2;
+}
+
+message ChatClientProtocol {
+	Header header = 1;
+	oneof message {
+		MessageReceive message_receive = 2;
+		MessageHistory message_history = 3;
+	}
+}
+
+message Header {
+	uint32 data_length = 1;
+	string command = 2;
+}
+
+message MessageSend {
+	string user_id = 1;
+	string messsage = 2;
+}
+
+message MessageReceive {
+	string user_id = 1;
+	string user_name = 2;
+	string message = 3;
+	string user_image_url = 4;
+	google.protobuf.Timestamp time = 5;
+}
+
+message MessageHistory {
+	repeated MessageReceive messages = 1;
+}

@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS user_table (
+	user_id TEXT REFERENCES users (user_id)
+		ON UPDATE CASCADE
+		ON DELETE CASCADE,
+	table_id INTEGER REFERENCES tables (table_id)
+		ON UPDATE CASCADE
+		ON DELETE CASCADE,
+	UNIQUE (user_id)
+)

@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=
+services:
+  cruce.db:
+    image: postgres
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER:      ${POSTGRES_USER}
+      POSTGRES_PASSWORD:  ${POSTGRES_PASS}
+      POSTGRES_DB:        ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - crucedb-data:/var/lib/postgresql/data
+
+  cruce.db.migrations:
+    depends_on:
+      - cruce.db
+    image: cruce.db.migrations
+    build:
+      context: ./db/
+      dockerfile: dockerfile
+      args:
+        DATABASE_URL: ${POSTGRES_URL}
+    command: "${POSTGRES_URL} up"
+
+  pgadmin:
+    depends_on:
+      - cruce.db
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+      - PGADMIN_LISTEN_PORT=5050
+    ports:
+      - "5050:5050"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+volumes:
+  crucedb-data:
+  pgadmin-data:

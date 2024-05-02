@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+import "protocol/game/header.proto";
+import "protocol/game/misc.proto";
+
+package protocol;
+
+option go_package = "./protobufs/protocol/game_protocol";
+
+message GameClientProtocol {
+	GameProtocolHeader header = 1;
+	PlayerPov player_pov = 2;
+}
+
+
+message PlayerPov {
+	uint32 team_1_score = 1;
+	uint32 team_2_score = 2;
+	uint32 team_1_points = 3;
+	uint32 team_2_points = 4;
+	repeated HandCard hand_cards = 5;
+	repeated Card played_cards = 6;
+	optional Auction auction = 7;
+	optional CardSuit trump = 8;
+	bool cheat_button = 9;
+}
+
+message HandCard {
+	Card card = 1;
+	CardState state = 2;
+}
+
+message Auction {
+	bool visible = 1;
+	repeated Bid bids = 2;
+	uint32 max_bid = 3;
+}
+
+message Bid {
+	bool has_bid = 1;
+	uint32 value = 2;
+}
+
+enum CardState {
+	DISABLED = 0;
+	ENABLED = 1;
+}
