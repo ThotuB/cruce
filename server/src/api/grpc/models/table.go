@@ -1,9 +1,10 @@
 package models
 
-import "cruce-server/protobufs"
+import pbs "cruce-server/protobufs"
 
 type Table struct {
 	TableId  int32   `db:"table_id"`
+	Name     string  `db:"name"`
 	UserId   string  `db:"user_id"`
 	GameMode string  `db:"game_mode"`
 	Points   string  `db:"points"`
@@ -13,26 +14,27 @@ type Table struct {
 	Password *string `db:"password"`
 }
 
-func (self *Table) ToProto() *protobufs.Table {
-	return &protobufs.Table{
-		Id: self.TableId,
-		Mode: map[string]protobufs.GameMode{
+func (t *Table) ToProto() *pbs.Table {
+	return &pbs.Table{
+		Id:   t.TableId,
+		Name: t.Name,
+		Mode: map[string]pbs.GameMode{
 			"1v1":   0,
 			"1v1v1": 1,
 			"2v2":   2,
-		}[self.GameMode],
-		Points: map[string]protobufs.Points{
+		}[t.GameMode],
+		Points: map[string]pbs.Points{
 			"6":  0,
 			"11": 1,
 			"21": 2,
-		}[self.Points],
-		Time: map[string]protobufs.Time{
+		}[t.Points],
+		Time: map[string]pbs.Time{
 			"5s":  0,
 			"15s": 1,
 			"30s": 2,
-		}[self.TurnTime],
-		Iber:     self.Iber,
-		Cheating: self.Cheating,
-		Password: self.Password,
+		}[t.TurnTime],
+		Iber:     t.Iber,
+		Cheating: t.Cheating,
+		Password: t.Password,
 	}
 }

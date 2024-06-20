@@ -1,45 +1,85 @@
 package cruce_2v2_6
 
-import "errors"
+import (
+	p "cruce-server/protobufs/protocol/game_protocol"
+	"cruce-server/src/utils/logger"
+	"errors"
+)
 
 type AuctionState struct {
+	log            logger.Logger
+	Round          *RoundState
 	Bids           []uint
 	MaxBid         uint
-	AuctionStarter uint // index of player who started the auction
-	PlayerIndex    uint // index of player whos turn it is to auction
+	AuctionStarter int // index of player who started the auction
+	PlayerIndex    int // index of player whos turn it is to auction
 	TurnNum        uint
 }
 
-func NewAuctionState(playerIndex uint) AuctionState {
-	return AuctionState{
-		Bids:        make([]uint, 0, 4),
-		MaxBid:      0,
-		PlayerIndex: playerIndex,
+func NewAuctionState(log logger.Logger, round *RoundState, playerIndex int) *AuctionState {
+	return &AuctionState{
+		log:            log,
+		Round:          round,
+		Bids:           make([]uint, 0, 4),
+		MaxBid:         0,
+		AuctionStarter: playerIndex,
+		PlayerIndex:    playerIndex,
+		TurnNum:        1,
 	}
 }
 
-func (self AuctionState) PlayBid(bid uint) error {
-	if self.MaxBid != 0 && bid != 0 && bid <= self.MaxBid {
+func (as *AuctionState) nextTurn() {
+	as.log.Debug("Auction next turn")
+	if as.TurnNum != 4 {
+		as.TurnNum++
+		as.PlayerIndex = (as.PlayerIndex + 1) % 4
+		return
+	}
+
+	as.Round.AuctionOver()
+}
+
+func (as *AuctionState) PlayBid(bid uint) error {
+	if as.MaxBid != 0 && bid != 0 && bid <= as.MaxBid {
 		return errors.New("auction error: auction bid < max bid")
 	}
 
 	// valid - set state
-	self.Bids = append(self.Bids, bid)
-	if self.MaxBid < bid {
-		self.MaxBid = bid
+	as.Bids = append(as.Bids, bid)
+	if as.MaxBid < bid {
+		as.MaxBid = bid
 	}
+
+	as.nextTurn()
 
 	return nil
 }
 
-func (self AuctionState) GetAuctionWinner() uint {
-	winner := uint(0)
-	for i, bid := range self.Bids {
-		if bid == self.MaxBid {
-			winner = uint(i)
+func (as *AuctionState) GetAuctionWinner() int {
+	winner := 0
+	for i, bid := range as.Bids {
+		if bid == as.MaxBid {
+			winner = i
 			break
 		}
 	}
 
-	return (winner + self.AuctionStarter) % 4
+	return (winner + as.AuctionStarter) % 4
+}
+
+func (as *AuctionState) ToProto(playerIndex int) *p.Auction {
+	offset := 4 + as.AuctionStarter - playerIndex
+
+	bids := []*p.Bid{nil, nil, nil, nil}
+	for i, bid := range as.Bids {
+		value := uint32(bid)
+		optBid := &p.Bid{Value: &value}
+		bids[(i+offset)%4] = optBid
+	}
+
+	return &p.Auction{
+		Visible: playerIndex == as.PlayerIndex,
+		Bids:    bids,
+		MaxBid:  uint32(as.MaxBid),
+	}
 }

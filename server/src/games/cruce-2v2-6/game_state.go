@@ -1,28 +1,36 @@
 package cruce_2v2_6
 
-import "cruce-server/src/games"
+import (
+	"cruce-server/src/games"
+	"cruce-server/src/utils/logger"
+)
 
 type GameState struct {
-	TeamScore [2]uint
-	Round     RoundState
-	RoundNum  uint
+	log        logger.Logger
+	rules      games.Rules
+	GamePoints [2]uint
+	Round      *RoundState
+	RoundNum   uint
 }
 
-func NewGameState() GameState {
-	return GameState{
-		TeamScore: [2]uint{0, 0},
-		Round:     NewRoundState(0),
-		RoundNum:  1,
+func NewGameState(log logger.Logger, rules games.Rules) *GameState {
+	game := GameState{
+		log:        log,
+		GamePoints: [2]uint{0, 0},
+		RoundNum:   1,
 	}
+	game.Round = NewRoundState(log, &game, 0)
+
+	return &game
 }
 
 type WinningTeam struct {
 	teamNo uint
 }
 
-func (self GameState) winningTeam(rules games.Rules) *WinningTeam {
-	t0 := self.TeamScore[0]
-	t1 := self.TeamScore[1]
+func (gs *GameState) winningTeam(rules games.Rules) *WinningTeam {
+	t0 := gs.GamePoints[0]
+	t1 := gs.GamePoints[1]
 
 	pointsToWin := rules.GetPoints()
 
@@ -53,23 +61,25 @@ func (self GameState) winningTeam(rules games.Rules) *WinningTeam {
 	return nil
 }
 
-func (self GameState) nextRound(rules games.Rules) bool {
-	self.RoundNum++
-	scores := self.Round.GetTeamScores()
-	self.TeamScore[0] += scores[0]
-	self.TeamScore[1] += scores[1]
+func (gs *GameState) RoundOver() {
+	gs.log.Debug("Round over")
 
-	winningTeam := self.winningTeam(rules)
+	scores := gs.Round.CalculateGamePoints()
+	gs.GamePoints[0] += scores[0]
+	gs.GamePoints[1] += scores[1]
+
+	winningTeam := gs.winningTeam(gs.rules)
 	if winningTeam == nil {
-		self.Round = NewRoundState((self.RoundNum - 1) % 4)
-		return false
+		gs.RoundNum++
+		gs.Round = NewRoundState(gs.log, gs, (int(gs.RoundNum)-1)%4)
+		return
 	}
 
-	return true
+	// game over
 }
 
-func (self GameState) PlayCard(card games.Card) error {
-	err := self.Round.PlayCard(card)
+func (gs *GameState) PlayCard(card games.Card) error {
+	err := gs.Round.PlayCard(card)
 	if err != nil {
 		return err
 	}

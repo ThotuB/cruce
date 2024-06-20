@@ -1,19 +1,21 @@
-import { useGame } from "contexts/GameContext";
-import { useWindowDimensions } from "hooks/hooks";
+import { useGame } from "contexts/GameContext"
+import { useWindowDimensions } from "hooks/hooks"
+import { CardSuit, CardValue } from "proto/protocol/game/misc_pb"
+import CardImage from "./CardImage"
 
 export default function Table() {
     const { playedCards } = useGame()
 
     const { height } = useWindowDimensions()
 
-    const radius = height * 3 / 14
+    const radius = (height * 3) / 14
 
     return (
         <>
-            {playedCards.map((card, index) => {
-                const position = - index;
-                const rad = (position - 1) * Math.PI / 2
-                const deg = rad * 180 / Math.PI
+            {playedCards.map((tableCard, index) => {
+                const position = -index
+                const rad = ((position - 1) * Math.PI) / 2
+                const deg = (rad * 180) / Math.PI
                 const x = radius * Math.cos(rad)
                 const y = -radius * Math.sin(rad)
 
@@ -22,34 +24,38 @@ export default function Table() {
                     transform: `translate(${x}px, ${y}px) rotate(${deg + 90}deg)`,
                 }
 
+                if (!tableCard.card) return null
+
+                const card = tableCard.card
+
                 return (
-                    <div className="absolute h-full w-full flex items-center justify-center"
+                    <div
+                        className="absolute flex h-full w-full items-center justify-center"
                         key={index}
                     >
-                        <div className="bg-dark-1 p-4 rounded-3xl shadow-lg"
+                        <div
+                            className="rounded-3xl bg-dark-1 p-4 shadow-lg"
                             style={style}
                         >
-                            <MiniCard name={`${card.suit}${card.value}`} />
+                            <MiniCard suit={card.suit} value={card.value} />
                         </div>
                     </div>
                 )
             })}
         </>
     )
-
 }
 
-interface CardImageProps {
-    name: string
-}
-
-const MiniCard = ({ name }: CardImageProps) => (
-    <div className="w-full h-full rounded-xl border border-purple-300 flex flex-col divide-y divide-purple-300 justify-center overflow-hidden">
+const MiniCard: React.FC<{
+    suit: CardSuit
+    value: CardValue
+}> = ({ suit, value }) => (
+    <div className="flex h-full w-full flex-col justify-center divide-y divide-purple-300 overflow-hidden rounded-xl border border-purple-300">
         <div>
-            <img src={`/${name}.png`} title="card" />
+            <CardImage suit={suit} value={value} />
         </div>
         <div>
-            <img src={`/${name}.png`} title="card-180" className="rotate-180" />
+            <CardImage className="rotate-180" suit={suit} value={value} />
         </div>
     </div>
 )

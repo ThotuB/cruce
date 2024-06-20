@@ -3,6 +3,7 @@ package cruce_2v2_6
 import (
 	p "cruce-server/protobufs/protocol/game_protocol"
 	"cruce-server/src/games"
+	"cruce-server/src/utils/logger"
 	"errors"
 )
 
@@ -15,65 +16,149 @@ const (
 )
 
 type Game struct {
-	rules  games.Rules
-	joined uint
-	state  GameStates
-	game   GameState
+	log     logger.Logger
+	rules   games.Rules
+	players [4]*games.Player
+	joined  uint
+	state   GameStates
+	game    GameState
 }
 
-func NewGame(rules games.Rules) Game {
+func NewGame(log logger.Logger, rules games.Rules) Game {
 	return Game{
-		rules:  rules,
-		joined: 1,
-		state:  WAITING_FOR_PLAYERS,
-		game:   NewGameState(),
+		log:     log,
+		rules:   rules,
+		players: [4]*games.Player{nil, nil, nil, nil},
+		joined:  0,
+		state:   WAITING_FOR_PLAYERS,
+		game:    *NewGameState(log, rules),
 	}
 }
 
-func (self Game) Join() error {
-	if self.state != WAITING_FOR_PLAYERS {
+func (g *Game) findOpenSlot() *int {
+	for i, player := range g.players {
+		if player == nil {
+			return &i
+		}
+	}
+
+	return nil
+}
+
+func (g *Game) findPlayerIndex(playerId string) *int {
+	for i, player := range g.players {
+		if player != nil && player.Id == playerId {
+			return &i
+		}
+	}
+
+	return nil
+}
+
+func (g *Game) Join(player *games.Player) error {
+	if g.state != WAITING_FOR_PLAYERS {
 		return errors.New("game join errror: too many players")
 	}
 
-	self.joined++
-	if self.joined == 4 {
-		self.state = AUCTION
+	slot := g.findOpenSlot()
+	if slot == nil {
+		return errors.New("game join error: no open slots")
+	}
+
+	g.players[*slot] = player
+	g.joined++
+	if g.joined == 4 {
+		g.state = GAME_ONGOING
 	}
 
 	return nil
 }
 
-func (self Game) Leave() {
-	if self.joined == 0 {
-		return
+func (g *Game) Leave(playerId string) error {
+	playerIndex := g.findPlayerIndex(playerId)
+	if playerIndex == nil {
+		return errors.New("game leave error: player not found")
 	}
-	self.joined--
-	self.state = WAITING_FOR_PLAYERS
+
+	g.players[*playerIndex] = nil
+
+	g.joined--
+	g.state = WAITING_FOR_PLAYERS
+	return nil
 }
 
-func (self Game) Empty() bool {
-	return self.joined == 0
+func (g *Game) Empty() bool {
+	return g.joined == 0
 }
 
-func (self Game) PlayAuction(bid uint) error {
-	if self.state != GAME_ONGOING {
+func (g *Game) PlayAuction(playerId string, bid uint) error {
+	g.log.Debug("game play auction")
+
+	playerIndex := g.findPlayerIndex(playerId)
+	if playerIndex == nil {
+		return errors.New("game play auction error: player not found")
+	}
+
+	currentPlayerIndex := g.game.Round.GetPlayerIndex()
+	if *playerIndex != currentPlayerIndex {
+		return errors.New("game play auction error: not players turn")
+	}
+
+	if g.state != GAME_ONGOING {
 		return errors.New("game error: game not ongoing")
 	}
 
-	self.game.Round.PlayAuction(bid)
+	err := g.game.Round.PlayAuction(bid)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func (self Game) HandCardsToProto(playerIndex uint) []*p.HandCard {
+func (g *Game) PlayCard(playerId string, card games.Card) error {
+	g.log.Debug("game play card")
+
+	playerIndex := g.findPlayerIndex(playerId)
+	if playerIndex == nil {
+		return errors.New("game play card error: player not found")
+	}
+
+	currentPlayerIndex := g.game.Round.GetPlayerIndex()
+	if *playerIndex != currentPlayerIndex {
+		return errors.New("game play card error: not players turn")
+	}
+
+	if g.state != GAME_ONGOING {
+		return errors.New("game error: game not ongoing")
+	}
+
+	err := g.game.Round.PlayCard(card)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// protobuf conversion functions
+
+func (g *Game) handCardsToProto(playerIndex int) []*p.HandCard {
+	currentPlayerIndex := g.game.Round.GetPlayerIndex()
+	isCurrentPlayer := playerIndex == currentPlayerIndex
+
 	var handCards []*p.HandCard
-	for _, card := range self.game.Round.PlayerCardsInHand[playerIndex] {
+	for _, card := range g.game.Round.PlayerCardsInHand[playerIndex] {
 		var state p.CardState
-		if self.state != GAME_ONGOING {
+		if g.state != GAME_ONGOING {
 			state = p.CardState_DISABLED
-		} else if self.game.Round.State != TRICK {
+		} else if g.game.Round.State != TRICK {
 			state = p.CardState_DISABLED
-		} else { // TODO
+		} else if !isCurrentPlayer {
+			state = p.CardState_DISABLED
+		} else if !g.game.Round.IsCardPlayable(playerIndex, card) {
+			state = p.CardState_DISABLED
+		} else {
 			state = p.CardState_ENABLED
 		}
 
@@ -87,47 +172,46 @@ func (self Game) HandCardsToProto(playerIndex uint) []*p.HandCard {
 	return handCards
 }
 
-func (self AuctionState) ToProto(playerIndex uint) *p.Auction {
-	offset := 4 + self.AuctionStarter - playerIndex
+func (g *Game) playersToProto(playerIndex int) []*p.Player {
+	offset := 4 - playerIndex
 
-	bids := []*p.Bid{nil, nil, nil, nil}
-	for i, bid := range self.Bids {
-		optBid := &p.Bid{Value: uint32(bid)}
-		bids[(i+int(offset))%4] = optBid
+	var players [4]*p.Player
+	for i, player := range g.players {
+		if player == nil {
+			players[(i+offset)%4] = nil
+			continue
+		}
+
+		playerProto := player.ToProto()
+		players[(i+offset)%4] = playerProto
 	}
 
-	return &p.Auction{
-		Visible: playerIndex == self.PlayerIndex,
-		Bids:    bids,
-		MaxBid:  uint32(self.MaxBid),
-	}
+	return players[:]
 }
 
-func (self Game) ToProto() p.PlayerPov {
-	const PLAYER_INDEX = 0
-
-	var auction *p.Auction
-	var playedCards []*p.Card
-	var trump *p.CardSuit
-	if self.game.Round.State == TRICK {
-		for _, card := range self.game.Round.Trick.PlayedCards {
-			playedCard := card.ToProto()
-			playedCards = append(playedCards, playedCard)
-		}
-		trump = self.game.Round.Trick.Trump.ToProto().Enum()
-	} else {
-		auction = self.game.Round.Auction.ToProto(PLAYER_INDEX)
+func (g *Game) ToProto(userId string) (*p.PlayerPov, error) {
+	playerIndex := g.findPlayerIndex(userId)
+	if playerIndex == nil {
+		return nil, errors.New("game to proto error: player not found")
 	}
 
-	return p.PlayerPov{
-		Team_1Score:  uint32(self.game.TeamScore[0]),
-		Team_2Score:  uint32(self.game.TeamScore[1]),
-		Team_1Points: uint32(self.game.Round.TeamPoints[0]),
-		Team_2Points: uint32(self.game.Round.TeamPoints[1]),
-		HandCards:    self.HandCardsToProto(PLAYER_INDEX),
+	var auction *p.Auction
+	var playedCards []*p.TableCard
+	var trump *p.CardSuit
+	if g.state == GAME_ONGOING {
+		auction, playedCards, trump = g.game.Round.ToProto(*playerIndex)
+	}
+
+	return &p.PlayerPov{
+		Team_1Score:  uint32(g.game.GamePoints[0]),
+		Team_2Score:  uint32(g.game.GamePoints[1]),
+		Team_1Points: uint32(g.game.Round.CardPoints[0]),
+		Team_2Points: uint32(g.game.Round.CardPoints[1]),
+		HandCards:    g.handCardsToProto(*playerIndex),
 		PlayedCards:  playedCards,
 		Auction:      auction,
 		Trump:        trump,
 		CheatButton:  false,
-	}
+		Players:      g.playersToProto(*playerIndex),
+	}, nil
 }

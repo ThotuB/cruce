@@ -1,18 +1,18 @@
-import { createContext, useContext, useEffect, useState } from "react"
-import { auth } from 'utils/firebase'
 import {
-    UserCredential,
-    User,
-    signOut,
+    GoogleAuthProvider,
     signInWithPopup,
-    GoogleAuthProvider
-} from 'firebase/auth'
+    signOut,
+    User,
+    UserCredential,
+} from "firebase/auth"
+import { createContext, useContext, useEffect, useState } from "react"
+import { auth } from "utils/firebase"
 
 interface UserContext {
-    user: User;
-    guest: boolean;
-    logInGoogle: () => Promise<UserCredential>;
-    logOut: () => Promise<void>;
+    user: User
+    guest: boolean
+    logInGoogle: () => Promise<UserCredential>
+    logOut: () => Promise<void>
 }
 
 const UserContext = createContext({} as UserContext)
@@ -22,13 +22,14 @@ export function useUser() {
 }
 
 interface UserProviderProps {
-    children: React.ReactNode;
+    children: React.ReactNode
 }
 
 const defaultUser = {
     uid: Math.random().toString(32).slice(2),
-    displayName: 'Guest',
-    photoURL: 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
+    displayName: "Guest",
+    photoURL:
+        "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
 }
 
 export function UserProvider({ children }: UserProviderProps) {
@@ -44,8 +45,8 @@ export function UserProvider({ children }: UserProviderProps) {
     }
 
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
-            setUser(user ?? defaultUser as User)
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            setUser(user ?? (defaultUser as User))
             setGuest(!user)
         })
 
@@ -56,12 +57,8 @@ export function UserProvider({ children }: UserProviderProps) {
         user,
         guest,
         logInGoogle,
-        logOut
+        logOut,
     }
 
-    return (
-        <UserContext.Provider value={value}>
-            {children}
-        </UserContext.Provider>
-    )
+    return <UserContext.Provider value={value}>{children}</UserContext.Provider>
 }

@@ -2,23 +2,23 @@ package controllers
 
 import (
 	"context"
-	"cruce-server/protobufs"
+	pbs "cruce-server/protobufs"
 	"cruce-server/src/api/grpc/models"
 	"cruce-server/src/api/grpc/repos"
-	"log"
+	"cruce-server/src/utils/logger"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type TableService struct {
-	protobufs.UnimplementedTableServiceServer
-	log       *log.Logger
+	pbs.UnimplementedTableServiceServer
+	log       logger.Logger
 	tableRepo repos.TableRepo
 }
 
 func NewTableService(
-	log *log.Logger,
+	log logger.Logger,
 	tableRepo repos.TableRepo,
 ) *TableService {
 	return &TableService{
@@ -27,20 +27,20 @@ func NewTableService(
 	}
 }
 
-func (self *TableService) Create(ctx context.Context, req *protobufs.CreateTableRequest) (*protobufs.CreateTableResponse, error) {
-	gameMode := map[protobufs.GameMode]string{
+func (ts *TableService) Create(ctx context.Context, req *pbs.CreateTableRequest) (*pbs.CreateTableResponse, error) {
+	gameMode := map[pbs.GameMode]string{
 		0: "1v1",
 		1: "1v1v1",
 		2: "2v2",
 	}[req.GetMode()]
 
-	points := map[protobufs.Points]string{
+	points := map[pbs.Points]string{
 		0: "6",
 		1: "11",
 		2: "21",
 	}[req.GetPoints()]
 
-	turnTime := map[protobufs.Time]string{
+	turnTime := map[pbs.Time]string{
 		0: "5s",
 		1: "15s",
 		2: "30s",
@@ -56,53 +56,59 @@ func (self *TableService) Create(ctx context.Context, req *protobufs.CreateTable
 		Password: req.Password,
 	}
 
-	id, err := self.tableRepo.Create(ctx, table)
+	id, err := ts.tableRepo.Create(ctx, table)
 	if err != nil {
-		self.log.Println("tableRepo.Create:", err)
+		ts.log.Error("tableRepo.Create:", err)
 		return nil, status.Error(codes.Internal, "database error")
 	}
 
-	return &protobufs.CreateTableResponse{
+	return &pbs.CreateTableResponse{
 		TableId: *id,
 	}, nil
 }
 
-func (self *TableService) ListAll(ctx context.Context, req *protobufs.ListAllTablesRequest) (*protobufs.ListAllTablesResponse, error) {
-	tables, err := self.tableRepo.ListAll(ctx)
+func (ts *TableService) ListAll(ctx context.Context, req *pbs.ListAllTablesRequest) (*pbs.ListAllTablesResponse, error) {
+	tables, err := ts.tableRepo.ListAll(ctx)
 	if err != nil {
-		self.log.Println("tableRepo.ListAll:", err)
+		ts.log.Error("tableRepo.ListAll:\n", err)
 		return nil, status.Error(codes.Internal, "database error")
 	}
 
-	tablesProto := make([]*protobufs.Table, 0, len(*tables))
+	tablesProto := make([]*pbs.Table, 0, len(*tables))
 	for _, table := range *tables {
 		tableProto := table.ToProto()
 		tablesProto = append(tablesProto, tableProto)
 	}
 
-	return &protobufs.ListAllTablesResponse{
+	return &pbs.ListAllTablesResponse{
 		Tables: tablesProto,
 	}, nil
 }
 
-func (self *TableService) Join(ctx context.Context, req *protobufs.JoinTableRequest) (*protobufs.JoinTableResponse, error) {
-	return &protobufs.JoinTableResponse{}, nil
-}
-
-func (self *TableService) Leave(ctx context.Context, req *protobufs.LeaveTableRequest) (*protobufs.LeaveTableResponse, error) {
-	return &protobufs.LeaveTableResponse{}, nil
-}
-
-func (self *TableService) Get(ctx context.Context, req *protobufs.GetTableRequest) (*protobufs.GetTableResponse, error) {
-	table, err := self.tableRepo.Get(ctx, req.Id)
+func (ts *TableService) Join(ctx context.Context, req *pbs.JoinTableRequest) (*pbs.JoinTableResponse, error) {
+	err := ts.tableRepo.Join(ctx, req.UserId, req.TableId)
 	if err != nil {
-		self.log.Println("tableRepo.Get:", err)
+		ts.log.Error("tableRepo.Join:\n", err)
+		return nil, status.Error(codes.Internal, "database error")
+	}
+
+	return &pbs.JoinTableResponse{}, nil
+}
+
+func (ts *TableService) Leave(ctx context.Context, req *pbs.LeaveTableRequest) (*pbs.LeaveTableResponse, error) {
+	return &pbs.LeaveTableResponse{}, nil
+}
+
+func (ts *TableService) Get(ctx context.Context, req *pbs.GetTableRequest) (*pbs.GetTableResponse, error) {
+	table, err := ts.tableRepo.Get(ctx, req.Id)
+	if err != nil {
+		ts.log.Error("tableRepo.Get:\n", err)
 		return nil, status.Error(codes.NotFound, "not found")
 	}
 
 	tableProto := table.ToProto()
 
-	return &protobufs.GetTableResponse{
+	return &pbs.GetTableResponse{
 		Table: tableProto,
 	}, nil
 }

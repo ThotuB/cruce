@@ -2,7 +2,7 @@ package interceptors
 
 import (
 	"context"
-	"log"
+	"cruce-server/src/utils/logger"
 	"time"
 
 	"google.golang.org/grpc"
@@ -16,32 +16,31 @@ const (
 )
 
 type loggingInterceptor struct {
-	log *log.Logger
+	log logger.Logger
 }
 
-func NewLoggingInterceptor(log *log.Logger) *loggingInterceptor {
+func NewLoggingInterceptor(log logger.Logger) *loggingInterceptor {
 	return &loggingInterceptor{
 		log: log,
 	}
 }
 
-func (this *loggingInterceptor) Intercept(
+func (i *loggingInterceptor) Intercept(
 	ctx context.Context,
 	req interface{},
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (resp interface{}, err error) {
+	i.log.Infof(BLUE+"GRPC REQUEST"+RESET+" [%s]", info.FullMethod)
+
 	start := time.Now()
-
-	this.log.Printf(BLUE+"GRPC REQUEST"+RESET+" [%s]", info.FullMethod)
-
 	reply, err := handler(ctx, req)
 	elapsed := time.Since(start)
 
 	if err != nil {
-		this.log.Printf(RED+"RESPONSE"+RESET+" (%v) Error:\n %v", elapsed, err)
+		i.log.Warnf(RED+"RESPONSE"+RESET+" (%v) Error:\n %v", elapsed, err)
 	} else {
-		this.log.Printf(GREEN+"RESPONSE"+RESET+" (%v) Success", elapsed)
+		i.log.Infof(GREEN+"RESPONSE"+RESET+" (%v) Success", elapsed)
 	}
 
 	return reply, err

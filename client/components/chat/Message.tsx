@@ -1,11 +1,11 @@
-import { useUser } from "contexts/UserContext";
-import { MessageReceive } from "proto/protocol/chat/protocol_pb";
-import React from "react";
+import { useUser } from "contexts/UserContext"
+import { MessageReceive } from "proto/protocol/chat/protocol_pb"
+import React from "react"
 
 const MessageItem: React.FC<{
     message: MessageReceive
 }> = ({ message: { userId, userImageUrl, userName, message, time } }) => {
-    const { user } = useUser();
+    const { user } = useUser()
 
     const isMine = userId === user.uid
     const date = time?.toDate()
@@ -13,25 +13,30 @@ const MessageItem: React.FC<{
     const formattedDate = date ? formatDate(date) : undefined
 
     return (
-        <div className={`flex ${isMine && 'flex-row-reverse'} items-stretch gap-2`}>
-            <div className="w-12 h-12">
-                {userImageUrl ?
-                    <img src={userImageUrl} className="w-12 h-12 rounded-full object-cover" alt="plm" /> :
-                    <div className="w-12 h-12 rounded-full bg-purple-300">
+        <div
+            className={`flex ${isMine && "flex-row-reverse"} items-stretch gap-2`}
+        >
+            <div className="h-12 w-12">
+                {userImageUrl ? (
+                    <img
+                        src={userImageUrl}
+                        className="h-12 w-12 rounded-full object-cover"
+                        alt="plm"
+                    />
+                ) : (
+                    <div className="h-12 w-12 rounded-full bg-purple-300">
                         {userName[0].toUpperCase()}
                     </div>
-                }
+                )}
             </div>
-            <div className="flex-1 flex flex-col gap-1">
-                <div className="text-xs flex flex-row-reverse justify-between">
-                    <p className="pl-2 font-bold">
-                        {userName}
-                    </p>
-                    <p>
-                        {formattedDate}
-                    </p>
+            <div className="flex flex-1 flex-col gap-1">
+                <div className="flex flex-row-reverse justify-between text-xs">
+                    <p className="pl-2 font-bold">{userName}</p>
+                    <p>{formattedDate}</p>
                 </div>
-                <div className={`flex-1 py-1 px-3 rounded-xl ${isMine ? 'bg-purple-300 text-dark-1' : 'bg-dark-1 text-purple-300'} font-bold`}>
+                <div
+                    className={`flex-1 rounded-xl py-1 px-3 ${isMine ? "bg-purple-300 text-dark-1" : "bg-dark-1 text-purple-300"} font-bold`}
+                >
                     {message}
                 </div>
             </div>
@@ -48,31 +53,37 @@ const HOUR_IN_DAY = 24
 const DAY_IN_WEEK = 7
 
 const lessThanAWeekAgo = (date: Date, now: number): boolean => {
-    const lastWeekTime = now - (MS_IN_SEC * SEC_IN_MIN * MIN_IN_HOUR * HOUR_IN_DAY * DAY_IN_WEEK)
+    const lastWeekTime =
+        now - MS_IN_SEC * SEC_IN_MIN * MIN_IN_HOUR * HOUR_IN_DAY * DAY_IN_WEEK
     return date.getTime() > lastWeekTime
 }
 
 const lessThanADayAgo = (date: Date, now: number): boolean => {
-    const lastDayTime = now - (MS_IN_SEC * SEC_IN_MIN * MIN_IN_HOUR * HOUR_IN_DAY)
+    const lastDayTime = now - MS_IN_SEC * SEC_IN_MIN * MIN_IN_HOUR * HOUR_IN_DAY
     return date.getTime() > lastDayTime
 }
 
 const lessThanAnHourAgo = (date: Date, now: number): boolean => {
-    const lastHourTime = now - (MS_IN_SEC * SEC_IN_MIN * MIN_IN_HOUR)
+    const lastHourTime = now - MS_IN_SEC * SEC_IN_MIN * MIN_IN_HOUR
     return date.getTime() > lastHourTime
 }
 
 const lessThanAMinAgo = (date: Date, now: number): boolean => {
-    const lastMinTime = now - (MS_IN_SEC * SEC_IN_MIN)
+    const lastMinTime = now - MS_IN_SEC * SEC_IN_MIN
     return date.getTime() > lastMinTime
 }
 
 const xDaysAgo = (date: Date, now: number): number => {
-    return Math.floor((now - date.getTime()) / (MS_IN_SEC * SEC_IN_MIN * MIN_IN_HOUR * HOUR_IN_DAY))
+    return Math.floor(
+        (now - date.getTime()) /
+            (MS_IN_SEC * SEC_IN_MIN * MIN_IN_HOUR * HOUR_IN_DAY),
+    )
 }
 
 const xHoursAgo = (date: Date, now: number): number => {
-    return Math.floor((now - date.getTime()) / (MS_IN_SEC * SEC_IN_MIN * MIN_IN_HOUR))
+    return Math.floor(
+        (now - date.getTime()) / (MS_IN_SEC * SEC_IN_MIN * MIN_IN_HOUR),
+    )
 }
 
 const xMinsAgo = (date: Date, now: number): number => {
@@ -80,7 +91,7 @@ const xMinsAgo = (date: Date, now: number): number => {
 }
 
 const xSecsAgo = (date: Date, now: number): number => {
-    return Math.floor((now - date.getTime()) / (MS_IN_SEC))
+    return Math.floor((now - date.getTime()) / MS_IN_SEC)
 }
 
 const formatDate = (date: Date): string => {

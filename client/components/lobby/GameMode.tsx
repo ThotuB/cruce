@@ -1,23 +1,17 @@
-import { Table } from "proto/table_pb";
-import GameTableCard from "./GameTableCard";
+import { Table } from "proto/table_pb"
+import GameModeItem from "./GameTableCard"
 
 const GameMode: React.FC<{
-    title: React.ReactNode;
-    games: Table[];
-    onJoin: (table: Table) => void;
+    title: React.ReactNode
+    games: Table[]
+    onJoin: (table: Table) => void
 }> = ({ title, games, onJoin }) => {
     return (
-        <div className="bg-dark-2 grow h-full py-2 rounded-xl flex flex-col items-center gap-8 basis-0">
-            <div className="text-3xl font-bold">
-                {title}
-            </div>
-            <div className="flex flex-col gap-4 w-full max-h-full px-4 overflow-y-auto">
+        <div className="flex h-full flex-1 flex-col items-center gap-2 rounded-xl bg-dark-2 px-4 py-2 2xl:gap-8">
+            <div className="text-3xl font-bold">{title}</div>
+            <div className="w-full flex-1 flex-col gap-4 overflow-y-auto md:grid md:flex-none md:grid-cols-2 2xl:flex 2xl:flex-col">
                 {games.map((table, index) => (
-                    <GameTableCard
-                        key={index}
-                        table={table}
-                        onJoin={onJoin}
-                    />
+                    <GameModeItem key={index} table={table} onJoin={onJoin} />
                 ))}
             </div>
         </div>

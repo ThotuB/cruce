@@ -8,10 +8,9 @@ package protocol;
 option go_package = "./protobufs/protocol/game_protocol";
 
 message GameClientProtocol {
-	GameProtocolHeader header = 1;
+	protocol.GameProtocolHeader header = 1;
 	PlayerPov player_pov = 2;
 }
-
 
 message PlayerPov {
 	uint32 team_1_score = 1;
@@ -19,15 +18,26 @@ message PlayerPov {
 	uint32 team_1_points = 3;
 	uint32 team_2_points = 4;
 	repeated HandCard hand_cards = 5;
-	repeated Card played_cards = 6;
+	repeated protocol.TableCard played_cards = 6;
 	optional Auction auction = 7;
-	optional CardSuit trump = 8;
+	optional protocol.CardSuit trump = 8;
 	bool cheat_button = 9;
+	repeated Player players = 10;
+}
+
+message Player {
+	string id = 1;
+	string name = 2;
+	string avatar = 3;
 }
 
 message HandCard {
-	Card card = 1;
+	protocol.Card card = 1;
 	CardState state = 2;
+}
+
+message TableCard {
+	optional protocol.Card card = 1;
 }
 
 message Auction {
@@ -37,8 +47,7 @@ message Auction {
 }
 
 message Bid {
-	bool has_bid = 1;
-	uint32 value = 2;
+	optional uint32 value = 1;
 }
 
 enum CardState {

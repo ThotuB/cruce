@@ -6,23 +6,23 @@ import Buttons from "./Buttons"
 import Hand from "./Hand"
 import Player from "./Player"
 import ScoreBoard from "./ScoreBoard"
-import { default as TTable } from "./Table"
+import { default as TableComponent } from "./Table"
 import Trump from "./Trump"
 
 const Game: React.FC<{
-    id: number;
-    table: Table;
+    id: number
+    table: Table
 }> = ({ id, table }) => {
     return (
-        <div className="relative w-full h-full">
+        <div className="relative h-full w-full">
             <GameProvider table={table} id={id}>
-                <div className="absolute h-full w-full flex items-center justify-center">
-                    <div className="relative h-3/4 aspect-square bg-dark-2 rounded-full">
+                <div className="absolute flex h-full w-full items-center justify-center">
+                    <div className="relative aspect-square h-3/4 rounded-full bg-dark-2">
                         <Player index={0} />
                         <Player index={1} />
                         <Player index={2} />
                         <Player index={3} />
-                        <TTable />
+                        <TableComponent />
                         <Trump />
                     </div>
                 </div>

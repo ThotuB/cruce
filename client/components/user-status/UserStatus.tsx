@@ -1,14 +1,14 @@
-import { LogoutIcon } from "@heroicons/react/outline";
-import { useMutation } from "@tanstack/react-query";
-import { useUser } from "contexts/UserContext";
-import Router from "next/router";
+import { LogoutIcon } from "@heroicons/react/outline"
+import { useMutation } from "@tanstack/react-query"
+import { useUser } from "contexts/UserContext"
+import Router from "next/router"
 
 const UserStatus: React.FC<{
-    name: string | null;
-    status: string;
-    image: string | null;
+    name: string | null
+    status: string
+    image: string | null
 }> = ({ name, status, image }) => {
-    const { logOut } = useUser();
+    const { logOut } = useUser()
 
     const logOutMutation = useMutation({
         mutationFn: logOut,
@@ -17,7 +17,7 @@ const UserStatus: React.FC<{
         },
         onError: (err) => {
             console.log(err)
-        }
+        },
     })
 
     const handleLogout = () => {
@@ -25,28 +25,27 @@ const UserStatus: React.FC<{
     }
 
     return (
-        <div className="flex gap-4 h-full w-full items-center py-2 px-4">
-            {image ?
-                <img src={image} className="w-14 h-14 rounded-full" alt="plm" /> :
-                <div className={`w-14 h-14 p-5 rounded-full flex justify-center items-center text-3xl text-dark-1 font-extrabold bg-purple-300`}>
+        <div className="flex h-full w-full items-center gap-4 py-2 px-4">
+            {image ? (
+                <img src={image} className="h-14 w-14 rounded-full" alt="plm" />
+            ) : (
+                <div
+                    className={`flex h-14 w-14 items-center justify-center rounded-full bg-purple-300 p-5 text-3xl font-extrabold text-dark-1`}
+                >
                     ?
                 </div>
-            }
-            <div className="w-full flex flex-col gap-1">
-                <div className="font-bold text-lg">
-                    {name}
-                </div>
-                {status && <div className="text-gray-300">
-                    {status}
-                </div>}
+            )}
+            <div className="flex w-full flex-col gap-1">
+                <div className="text-lg font-bold">{name}</div>
+                {status && <div className="text-gray-300">{status}</div>}
             </div>
             <button
-                className="rounded-xl bg-purple-300 p-2 hover:bg-red-400 transition-colors duration-300"
+                className="rounded-xl bg-purple-300 p-2 transition-colors duration-300 hover:bg-red-400"
                 type="button"
                 title="Logout"
                 onClick={handleLogout}
             >
-                <LogoutIcon className="w-10 h-10 text-dark-1" />
+                <LogoutIcon className="h-10 w-10 text-dark-1" />
             </button>
         </div>
     )

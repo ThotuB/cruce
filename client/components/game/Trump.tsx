@@ -1,37 +1,40 @@
 import { useGame } from "contexts/GameContext"
-import { CardSuit } from "proto/protocol/game/protocol_pb"
-
+import { CardSuit } from "proto/protocol/game/misc_pb"
 
 export default function Trump() {
     const { trump } = useGame()
 
-    if (!trump) {
-        return (<></>)
-    }
+    const trumpExists = trump != null
 
-    const fileName = toPngFileName(trump)
+    if (!trumpExists) return null
 
     return (
-        <div className='absolute h-full w-full flex items-center justify-center'>
-            <div className={`w-36 h-36 rounded-full bg-dark-1 border-4 border-purple-300 flex items-center justify-center transition-opacity
-                    ${trump ? '' : 'opacity-0'}`}
+        <div className="absolute flex h-full w-full items-center justify-center">
+            <div
+                className={`flex h-36 w-36 items-center justify-center rounded-full border-4 border-purple-300 bg-dark-1 transition-opacity
+                    ${trumpExists ? "" : "opacity-0"}`}
             >
-                <img src={`/${fileName}.png`} alt='trump' />
+                <TrumpImage trump={trump} />
             </div>
         </div>
     )
 }
 
+const TrumpImage: React.FC<{ trump: CardSuit }> = ({ trump }) => {
+    const fileName = toPngFileName(trump)
+
+    return <img src={`/${fileName}.png`} alt="trump" />
+}
+
 const toPngFileName = (trump: CardSuit) => {
     switch (trump) {
         case CardSuit.DUBA:
-            return ''
+            return "D"
         case CardSuit.ROSU:
-            return ''
+            return "R"
         case CardSuit.VERDE:
-            return ''
+            return "V"
         case CardSuit.GHINDA:
-            return ''
-
+            return "G"
     }
 }

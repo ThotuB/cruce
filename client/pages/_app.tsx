@@ -1,9 +1,9 @@
-import type { AppProps } from 'next/app'
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { UserProvider } from "contexts/UserContext"
+import Layout from "layouts/Layout"
+import type { AppProps } from "next/app"
+import Head from "next/head"
 import "tailwindcss/tailwind.css"
-import Layout from 'layouts/Layout'
-import { UserProvider } from 'contexts/UserContext'
-import Head from 'next/head'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const queryClient = new QueryClient()
 
@@ -15,7 +15,10 @@ function App({ Component, pageProps }: AppProps) {
             <Head>
                 <title>Cruce</title>
                 <link rel="icon" href="/favicon.ico" />
-                <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet" />
+                <link
+                    href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap"
+                    rel="stylesheet"
+                />
             </Head>
             <QueryClientProvider client={queryClient}>
                 <UserProvider>

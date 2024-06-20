@@ -1,6 +1,6 @@
 package games
 
-import "cruce-server/protobufs/protocol/game_protocol"
+import pbs "cruce-server/protobufs/protocol/game_protocol"
 
 type Suit uint8
 
@@ -43,43 +43,88 @@ func (self Card) BetterThan(other Card, trump Suit) bool {
 	return false
 }
 
-func (self Suit) ToProto() game_protocol.CardSuit {
-	switch self {
+func (s *Suit) ToProto() *pbs.CardSuit {
+	if s == nil {
+		return nil
+	}
+
+	switch *s {
 	case ROSU:
-		return game_protocol.CardSuit_ROSU
+		return pbs.CardSuit_ROSU.Enum()
 	case DUBA:
-		return game_protocol.CardSuit_DUBA
+		return pbs.CardSuit_DUBA.Enum()
 	case VERDE:
-		return game_protocol.CardSuit_VERDE
+		return pbs.CardSuit_VERDE.Enum()
 	case GHINDA:
-		return game_protocol.CardSuit_GHINDA
+		return pbs.CardSuit_GHINDA.Enum()
 	default:
 		panic("card suit")
 	}
 }
 
-func (self Value) ToProto() game_protocol.CardValue {
+func (self Value) ToProto() pbs.CardValue {
 	switch self {
 	case ACE:
-		return game_protocol.CardValue_ACE
+		return pbs.CardValue_ACE
 	case TEN:
-		return game_protocol.CardValue_TEN
+		return pbs.CardValue_TEN
 	case KING:
-		return game_protocol.CardValue_KING
+		return pbs.CardValue_KING
 	case QUEEN:
-		return game_protocol.CardValue_QUEEN
+		return pbs.CardValue_QUEEN
 	case JACK:
-		return game_protocol.CardValue_JACK
+		return pbs.CardValue_JACK
 	case NINE:
-		return game_protocol.CardValue_NINE
+		return pbs.CardValue_NINE
 	default:
 		panic("card value")
 	}
 }
 
-func (self Card) ToProto() *game_protocol.Card {
-	return &game_protocol.Card{
-		Suit:  self.Suit.ToProto(),
-		Value: self.Value.ToProto(),
+func (c Card) ToProto() *pbs.Card {
+	return &pbs.Card{
+		Suit:  *c.Suit.ToProto(),
+		Value: c.Value.ToProto(),
+	}
+}
+
+func SuitFromProto(proto pbs.CardSuit) Suit {
+	switch proto {
+	case pbs.CardSuit_ROSU:
+		return ROSU
+	case pbs.CardSuit_DUBA:
+		return DUBA
+	case pbs.CardSuit_VERDE:
+		return VERDE
+	case pbs.CardSuit_GHINDA:
+		return GHINDA
+	default:
+		panic("card suit")
+	}
+}
+
+func ValueFromProto(proto pbs.CardValue) Value {
+	switch proto {
+	case pbs.CardValue_ACE:
+		return ACE
+	case pbs.CardValue_TEN:
+		return TEN
+	case pbs.CardValue_KING:
+		return KING
+	case pbs.CardValue_QUEEN:
+		return QUEEN
+	case pbs.CardValue_JACK:
+		return JACK
+	case pbs.CardValue_NINE:
+		return NINE
+	default:
+		panic("card value")
+	}
+}
+
+func CardFromProto(proto *pbs.Card) Card {
+	return Card{
+		Suit:  SuitFromProto(proto.Suit),
+		Value: ValueFromProto(proto.Value),
 	}
 }

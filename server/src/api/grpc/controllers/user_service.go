@@ -5,7 +5,7 @@ import (
 	"cruce-server/protobufs"
 	"cruce-server/src/api/grpc/models"
 	"cruce-server/src/api/grpc/repos"
-	"log"
+	"cruce-server/src/utils/logger"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -13,12 +13,12 @@ import (
 
 type UserService struct {
 	protobufs.UnimplementedUserServiceServer
-	log      *log.Logger
+	log      logger.Logger
 	userRepo repos.UserRepo
 }
 
 func NewUserService(
-	log *log.Logger,
+	log logger.Logger,
 	userRepo repos.UserRepo,
 ) *UserService {
 	return &UserService{
@@ -27,16 +27,16 @@ func NewUserService(
 	}
 }
 
-func (self *UserService) Create(ctx context.Context, req *protobufs.CreateUserRequest) (*protobufs.CreateUserResponse, error) {
+func (us *UserService) Create(ctx context.Context, req *protobufs.CreateUserRequest) (*protobufs.CreateUserResponse, error) {
 	user := &models.User{
 		UserId:   req.UserId,
 		Name:     req.Name,
 		ImageUrl: req.ImageUrl,
 	}
 
-	err := self.userRepo.Create(ctx, user)
+	err := us.userRepo.Create(ctx, user)
 	if err != nil {
-		self.log.Println("userRepo.Create:", err)
+		us.log.Error("userRepo.Create:", err)
 		return nil, status.Error(codes.Internal, "database error")
 	}
 

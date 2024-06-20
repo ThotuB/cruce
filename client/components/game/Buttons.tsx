@@ -1,18 +1,19 @@
-import { MinusIcon, XIcon } from "@heroicons/react/solid";
-import { useGame } from "contexts/GameContext";
-import React from "react";
+import { MinusIcon, XIcon } from "@heroicons/react/solid"
+import { useGame } from "contexts/GameContext"
+import React from "react"
 
 const Buttons: React.FC = () => {
     const { cheatButton } = useGame()
 
-    const onExit = () => { }
-    const handleCheating = () => { }
+    const onExit = () => {}
+    const handleCheating = () => {}
 
     return (
         <div className="relative p-4">
-            <div className="rounded-2xl bg-dark-1 p-4 w-min float-right">
+            <div className="float-right w-min rounded-2xl bg-dark-1 p-4">
                 <div className="flex flex-row-reverse gap-4">
-                    <button className="border-2 rounded-full p-4 border-purple-300 hover:bg-purple-300 hover:text-dark-1"
+                    <button
+                        className="rounded-full border-2 border-purple-300 p-4 hover:bg-purple-300 hover:text-dark-1"
                         onClick={onExit}
                         type="button"
                         title="Leave Game"
@@ -20,7 +21,8 @@ const Buttons: React.FC = () => {
                         <XIcon className="h-8 w-8" />
                     </button>
                     {cheatButton && (
-                        <button className="border-2 rounded-full p-4 border-purple-300 hover:bg-purple-300 hover:text-dark-1"
+                        <button
+                            className="rounded-full border-2 border-purple-300 p-4 hover:bg-purple-300 hover:text-dark-1"
                             onClick={handleCheating}
                             type="button"
                             title="Minus"

@@ -16,7 +16,6 @@ func NewChatRepo(db *sqlx.DB) *ChatRepo {
 	}
 }
 
-// TODO
 func (self *ChatRepo) PostMessage(messageInsert models.MessageInsert) (*models.MessageGet, error) {
 	var messageGet models.MessageGet
 	err := self.db.Get(&messageGet,

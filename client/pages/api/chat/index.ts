@@ -1,10 +1,11 @@
-import { MongoClient } from 'mongodb';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { connectToMongo } from 'utils/mongodb';
+import { NextApiRequest, NextApiResponse } from "next"
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+    req: NextApiRequest,
+    res: NextApiResponse,
+) {
     // if (req.method === 'GET') {
-    //     
+    //
     //     const { collection, client } = await connectToMongo('chat');
     //
     //     const result = await collection.find({}).toArray();

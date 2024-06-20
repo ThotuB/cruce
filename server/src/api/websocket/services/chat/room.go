@@ -4,13 +4,13 @@ import (
 	"cruce-server/protobufs/protocol/chat_protocol"
 	"cruce-server/src/api/websocket/models"
 	"cruce-server/src/api/websocket/repos"
-	"log"
+	"cruce-server/src/utils/logger"
 
 	"google.golang.org/protobuf/proto"
 )
 
 type ChatRoom struct {
-	log      *log.Logger
+	log      logger.Logger
 	chatRepo repos.ChatRepo
 
 	// Registered clients.
@@ -26,7 +26,7 @@ type ChatRoom struct {
 	unregister chan *ChatClient
 }
 
-func NewRoom(log *log.Logger, chatRepo repos.ChatRepo) *ChatRoom {
+func NewRoom(log logger.Logger, chatRepo repos.ChatRepo) *ChatRoom {
 	return &ChatRoom{
 		log:        log,
 		chatRepo:   chatRepo,
@@ -41,12 +41,12 @@ func (self *ChatRoom) Run() {
 	for {
 		select {
 		case client := <-self.register:
-			self.log.Println("chat client registered")
+			self.log.Info("chat client registered")
 			self.clients[client] = true
 
 			messageHistory, err := self.chatRepo.GetHistory()
 			if err != nil {
-				self.log.Println("chatRepo.GetHistory error:\n", err)
+				self.log.Error("chatRepo.GetHistory error:\n", err)
 				continue
 			}
 
@@ -68,7 +68,7 @@ func (self *ChatRoom) Run() {
 
 			bytes, err := proto.Marshal(sendProto)
 			if err != nil {
-				self.log.Println("proto.Marshall error:\n", err)
+				self.log.Error("proto.Marshall error:\n", err)
 				continue
 			}
 
@@ -80,7 +80,7 @@ func (self *ChatRoom) Run() {
 			}
 
 		case client := <-self.unregister:
-			self.log.Println("chat client unregistered")
+			self.log.Info("chat client unregistered")
 			if _, ok := self.clients[client]; ok {
 				delete(self.clients, client)
 				close(client.send)
@@ -90,11 +90,11 @@ func (self *ChatRoom) Run() {
 			receiveProto := &chat_protocol.ChatServerProtocol{}
 			err := proto.Unmarshal(message, receiveProto)
 			if err != nil {
-				self.log.Println("proto.Unmarshall error:\n", err)
+				self.log.Error("proto.Unmarshall error:\n", err)
 				continue
 			}
 
-			self.log.Println("WEBSOCKET RECEIVED: ", receiveProto)
+			self.log.Info("WEBSOCKET RECEIVED: ", receiveProto)
 
 			messageInsert := models.MessageInsert{
 				UserId:  receiveProto.MessageSend.UserId,
@@ -103,7 +103,7 @@ func (self *ChatRoom) Run() {
 
 			messageGet, err := self.chatRepo.PostMessage(messageInsert)
 			if err != nil {
-				self.log.Println("chatRepo.PostMessage error:\n", err)
+				self.log.Error("chatRepo.PostMessage error:\n", err)
 				continue
 			}
 
@@ -115,11 +115,11 @@ func (self *ChatRoom) Run() {
 				},
 			}
 
-			self.log.Println("WEBSOCKET SENT: ", sendProto)
+			self.log.Info("WEBSOCKET SENT: ", sendProto)
 
 			bytes, err := proto.Marshal(sendProto)
 			if err != nil {
-				self.log.Println("proto.Marshall error:\n", err)
+				self.log.Error("proto.Marshall error:\n", err)
 				continue
 			}
 

@@ -3,25 +3,31 @@ package game
 import "github.com/gorilla/websocket"
 
 type GameClient struct {
-	hub    *GameHub
-	roomId string
-	conn   *websocket.Conn
-	send   chan []byte
+	room     *GameRoom
+	userId   string
+	roomId   int
+	userName string
+	avatar   string
+	conn     *websocket.Conn
+	send     chan []byte
 }
 
-func NewGameClient(hub *GameHub, roomId string, conn *websocket.Conn, send chan []byte) *GameClient {
+func NewGameClient(room *GameRoom, userId string, roomId int, userName string, avatar string, conn *websocket.Conn, send chan []byte) *GameClient {
 	return &GameClient{
-		hub:    hub,
-		roomId: roomId,
-		conn:   conn,
-		send:   send,
+		room:     room,
+		userId:   userId,
+		roomId:   roomId,
+		userName: userName,
+		avatar:   avatar,
+		conn:     conn,
+		send:     send,
 	}
 }
 
 // client -> ReadPump() -> chat room
 func (self *GameClient) ReadPump() {
 	defer func() {
-		self.hub.unregister <- self
+		self.room.unregister <- self
 		self.conn.Close()
 	}()
 
@@ -32,11 +38,11 @@ func (self *GameClient) ReadPump() {
 		}
 
 		message := Message{
-			roomId: self.roomId,
 			data:   data,
+			userId: self.userId,
 		}
 
-		self.hub.broadcast <- message
+		self.room.broadcast <- message
 	}
 }
 
@@ -50,7 +56,7 @@ func (self *GameClient) WritePump() {
 		select {
 		case message, ok := <-self.send:
 			if !ok {
-				// The.room closed the channel.
+				// The room closed the channel.
 				self.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}

@@ -8,8 +8,8 @@ import (
 	"cruce-server/src/api/grpc/interceptors"
 	"cruce-server/src/api/grpc/middleware"
 	"cruce-server/src/api/grpc/repos"
+	"cruce-server/src/utils/logger"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 
@@ -27,12 +27,12 @@ import (
 )
 
 type server struct {
-	log *log.Logger
+	log logger.Logger
 	cfg *config.Config
 	db  *sqlx.DB
 }
 
-func NewServer(log *log.Logger, cfg *config.Config, db *sqlx.DB) *server {
+func NewServer(log logger.Logger, cfg *config.Config, db *sqlx.DB) *server {
 	return &server{
 		log: log,
 		cfg: cfg,
@@ -82,12 +82,12 @@ func (self *server) Run() error {
 	tableService := controllers.NewTableService(self.log, *tableRepo)
 	protobufs.RegisterTableServiceServer(grpcServer, tableService)
 
-	self.log.Println("gRPC server listening at: ", listener.Addr())
+	self.log.Info("grpc server listening at: ", listener.Addr())
 
 	// start grpc server
 	go func() {
 		if err := grpcServer.Serve(listener); err != nil {
-			self.log.Fatalln("Could not serve:\n", err)
+			self.log.Fatal("grpc server failed to serve:\n", err)
 		}
 	}()
 
@@ -106,10 +106,10 @@ func (self *server) Run() error {
 		Addr: fmt.Sprintf("localhost:%d", self.cfg.GRPC.ProxyPort),
 	}
 
-	self.log.Println("http server listening at: ", httpServer.Addr)
+	self.log.Info("http server listening at: ", httpServer.Addr)
 
 	if err := httpServer.ListenAndServe(); err != nil {
-		self.log.Fatalln("failed to server:\n", err)
+		self.log.Fatal("http server failed to server:\n", err)
 	}
 
 	return nil

@@ -1,4 +1,5 @@
-import { PlayerPov } from "proto/protocol/game/protocol_pb"
+import { PlayerPov } from "proto/protocol/game/client_protocol_pb"
+import { PlayBid, PlayCard } from "proto/protocol/game/server_protocol_pb"
 import { useEffect } from "react"
 import { ReadyState } from "react-use-websocket"
 import useProtoSocket from "./UseProtoSocket"
@@ -9,8 +10,10 @@ interface UseGameHook {
     state: PlayerPov | null
 }
 
-const useGameState = () => {
-    const { lastProtoMessage, sendProtoMessage, readyState } = useProtoSocket(socketUrl)
+const useGameState = (uid: string, tid: number) => {
+    const { lastProtoMessage, sendProtoMessage, readyState } = useProtoSocket(
+        `${socketUrl}?uid=${uid}&tid=${tid}`,
+    )
 
     useEffect(() => {
         if (readyState == ReadyState.OPEN) {
@@ -18,18 +21,24 @@ const useGameState = () => {
         }
     }, [readyState])
 
-    const sendBid = () => {
-        sendProtoMessage()
+    const sendBid = (bid: PlayBid) => {
+        sendProtoMessage({
+            case: "playBid",
+            value: bid,
+        })
     }
 
-    const sendCard = () => {
-        sendProtoMessage()
+    const sendCard = (card: PlayCard) => {
+        sendProtoMessage({
+            case: "playCard",
+            value: card,
+        })
     }
 
     return {
         state: lastProtoMessage,
         sendBid,
-        sendCard
+        sendCard,
     }
 }
 

@@ -8,6 +8,20 @@ package protocol;
 option go_package = "./protobufs/protocol/game_protocol";
 
 message GameServerProtocol {
-	GameProtocolHeader header = 1;
+	protocol.GameProtocolHeader header = 1;
+	oneof message {
+		PlayCard play_card = 2;
+		PlayBid play_bid = 3;
+		AccuseCheating accuse_cheating = 4;
+	}
 }
 
+message PlayCard {
+	protocol.Card card = 1;
+}
+
+message PlayBid {
+	uint32 bid = 1;
+}
+
+message AccuseCheating {}

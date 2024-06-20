@@ -26,6 +26,12 @@ type GameServerProtocol struct {
 	unknownFields protoimpl.UnknownFields
 
 	Header *GameProtocolHeader `protobuf:"bytes,1,opt,name=header,proto3" json:"header,omitempty"`
+	// Types that are assignable to Message:
+	//
+	//	*GameServerProtocol_PlayCard
+	//	*GameServerProtocol_PlayBid
+	//	*GameServerProtocol_AccuseCheating
+	Message isGameServerProtocol_Message `protobuf_oneof:"message"`
 }
 
 func (x *GameServerProtocol) Reset() {
@@ -67,6 +73,188 @@ func (x *GameServerProtocol) GetHeader() *GameProtocolHeader {
 	return nil
 }
 
+func (m *GameServerProtocol) GetMessage() isGameServerProtocol_Message {
+	if m != nil {
+		return m.Message
+	}
+	return nil
+}
+
+func (x *GameServerProtocol) GetPlayCard() *PlayCard {
+	if x, ok := x.GetMessage().(*GameServerProtocol_PlayCard); ok {
+		return x.PlayCard
+	}
+	return nil
+}
+
+func (x *GameServerProtocol) GetPlayBid() *PlayBid {
+	if x, ok := x.GetMessage().(*GameServerProtocol_PlayBid); ok {
+		return x.PlayBid
+	}
+	return nil
+}
+
+func (x *GameServerProtocol) GetAccuseCheating() *AccuseCheating {
+	if x, ok := x.GetMessage().(*GameServerProtocol_AccuseCheating); ok {
+		return x.AccuseCheating
+	}
+	return nil
+}
+
+type isGameServerProtocol_Message interface {
+	isGameServerProtocol_Message()
+}
+
+type GameServerProtocol_PlayCard struct {
+	PlayCard *PlayCard `protobuf:"bytes,2,opt,name=play_card,json=playCard,proto3,oneof"`
+}
+
+type GameServerProtocol_PlayBid struct {
+	PlayBid *PlayBid `protobuf:"bytes,3,opt,name=play_bid,json=playBid,proto3,oneof"`
+}
+
+type GameServerProtocol_AccuseCheating struct {
+	AccuseCheating *AccuseCheating `protobuf:"bytes,4,opt,name=accuse_cheating,json=accuseCheating,proto3,oneof"`
+}
+
+func (*GameServerProtocol_PlayCard) isGameServerProtocol_Message() {}
+
+func (*GameServerProtocol_PlayBid) isGameServerProtocol_Message() {}
+
+func (*GameServerProtocol_AccuseCheating) isGameServerProtocol_Message() {}
+
+type PlayCard struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Card *Card `protobuf:"bytes,1,opt,name=card,proto3" json:"card,omitempty"`
+}
+
+func (x *PlayCard) Reset() {
+	*x = PlayCard{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_protocol_game_server_protocol_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PlayCard) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PlayCard) ProtoMessage() {}
+
+func (x *PlayCard) ProtoReflect() protoreflect.Message {
+	mi := &file_protocol_game_server_protocol_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PlayCard.ProtoReflect.Descriptor instead.
+func (*PlayCard) Descriptor() ([]byte, []int) {
+	return file_protocol_game_server_protocol_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *PlayCard) GetCard() *Card {
+	if x != nil {
+		return x.Card
+	}
+	return nil
+}
+
+type PlayBid struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Bid uint32 `protobuf:"varint,1,opt,name=bid,proto3" json:"bid,omitempty"`
+}
+
+func (x *PlayBid) Reset() {
+	*x = PlayBid{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_protocol_game_server_protocol_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PlayBid) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PlayBid) ProtoMessage() {}
+
+func (x *PlayBid) ProtoReflect() protoreflect.Message {
+	mi := &file_protocol_game_server_protocol_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PlayBid.ProtoReflect.Descriptor instead.
+func (*PlayBid) Descriptor() ([]byte, []int) {
+	return file_protocol_game_server_protocol_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *PlayBid) GetBid() uint32 {
+	if x != nil {
+		return x.Bid
+	}
+	return 0
+}
+
+type AccuseCheating struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *AccuseCheating) Reset() {
+	*x = AccuseCheating{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_protocol_game_server_protocol_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *AccuseCheating) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AccuseCheating) ProtoMessage() {}
+
+func (x *AccuseCheating) ProtoReflect() protoreflect.Message {
+	mi := &file_protocol_game_server_protocol_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AccuseCheating.ProtoReflect.Descriptor instead.
+func (*AccuseCheating) Descriptor() ([]byte, []int) {
+	return file_protocol_game_server_protocol_proto_rawDescGZIP(), []int{3}
+}
+
 var File_protocol_game_server_protocol_proto protoreflect.FileDescriptor
 
 var file_protocol_game_server_protocol_proto_rawDesc = []byte{
@@ -76,14 +264,32 @@ var file_protocol_game_server_protocol_proto_rawDesc = []byte{
 	0x1a, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x67, 0x61, 0x6d, 0x65, 0x2f, 0x68,
 	0x65, 0x61, 0x64, 0x65, 0x72, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x18, 0x70, 0x72, 0x6f,
 	0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x67, 0x61, 0x6d, 0x65, 0x2f, 0x6d, 0x69, 0x73, 0x63, 0x2e,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x4a, 0x0a, 0x12, 0x47, 0x61, 0x6d, 0x65, 0x53, 0x65, 0x72,
-	0x76, 0x65, 0x72, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x12, 0x34, 0x0a, 0x06, 0x68,
-	0x65, 0x61, 0x64, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2e, 0x47, 0x61, 0x6d, 0x65, 0x50, 0x72, 0x6f, 0x74, 0x6f,
-	0x63, 0x6f, 0x6c, 0x48, 0x65, 0x61, 0x64, 0x65, 0x72, 0x52, 0x06, 0x68, 0x65, 0x61, 0x64, 0x65,
-	0x72, 0x42, 0x24, 0x5a, 0x22, 0x2e, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x73,
-	0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x67, 0x61, 0x6d, 0x65, 0x5f, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xfd, 0x01, 0x0a, 0x12, 0x47, 0x61, 0x6d, 0x65, 0x53, 0x65,
+	0x72, 0x76, 0x65, 0x72, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x12, 0x34, 0x0a, 0x06,
+	0x68, 0x65, 0x61, 0x64, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2e, 0x47, 0x61, 0x6d, 0x65, 0x50, 0x72, 0x6f, 0x74,
+	0x6f, 0x63, 0x6f, 0x6c, 0x48, 0x65, 0x61, 0x64, 0x65, 0x72, 0x52, 0x06, 0x68, 0x65, 0x61, 0x64,
+	0x65, 0x72, 0x12, 0x31, 0x0a, 0x09, 0x70, 0x6c, 0x61, 0x79, 0x5f, 0x63, 0x61, 0x72, 0x64, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x12, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c,
+	0x2e, 0x50, 0x6c, 0x61, 0x79, 0x43, 0x61, 0x72, 0x64, 0x48, 0x00, 0x52, 0x08, 0x70, 0x6c, 0x61,
+	0x79, 0x43, 0x61, 0x72, 0x64, 0x12, 0x2e, 0x0a, 0x08, 0x70, 0x6c, 0x61, 0x79, 0x5f, 0x62, 0x69,
+	0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x11, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63,
+	0x6f, 0x6c, 0x2e, 0x50, 0x6c, 0x61, 0x79, 0x42, 0x69, 0x64, 0x48, 0x00, 0x52, 0x07, 0x70, 0x6c,
+	0x61, 0x79, 0x42, 0x69, 0x64, 0x12, 0x43, 0x0a, 0x0f, 0x61, 0x63, 0x63, 0x75, 0x73, 0x65, 0x5f,
+	0x63, 0x68, 0x65, 0x61, 0x74, 0x69, 0x6e, 0x67, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x18,
+	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2e, 0x41, 0x63, 0x63, 0x75, 0x73, 0x65,
+	0x43, 0x68, 0x65, 0x61, 0x74, 0x69, 0x6e, 0x67, 0x48, 0x00, 0x52, 0x0e, 0x61, 0x63, 0x63, 0x75,
+	0x73, 0x65, 0x43, 0x68, 0x65, 0x61, 0x74, 0x69, 0x6e, 0x67, 0x42, 0x09, 0x0a, 0x07, 0x6d, 0x65,
+	0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x2e, 0x0a, 0x08, 0x50, 0x6c, 0x61, 0x79, 0x43, 0x61, 0x72,
+	0x64, 0x12, 0x22, 0x0a, 0x04, 0x63, 0x61, 0x72, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x0e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2e, 0x43, 0x61, 0x72, 0x64, 0x52,
+	0x04, 0x63, 0x61, 0x72, 0x64, 0x22, 0x1b, 0x0a, 0x07, 0x50, 0x6c, 0x61, 0x79, 0x42, 0x69, 0x64,
+	0x12, 0x10, 0x0a, 0x03, 0x62, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x03, 0x62,
+	0x69, 0x64, 0x22, 0x10, 0x0a, 0x0e, 0x41, 0x63, 0x63, 0x75, 0x73, 0x65, 0x43, 0x68, 0x65, 0x61,
+	0x74, 0x69, 0x6e, 0x67, 0x42, 0x24, 0x5a, 0x22, 0x2e, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62,
+	0x75, 0x66, 0x73, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x67, 0x61, 0x6d,
+	0x65, 0x5f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x33,
 }
 
 var (
@@ -98,18 +304,26 @@ func file_protocol_game_server_protocol_proto_rawDescGZIP() []byte {
 	return file_protocol_game_server_protocol_proto_rawDescData
 }
 
-var file_protocol_game_server_protocol_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_protocol_game_server_protocol_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_protocol_game_server_protocol_proto_goTypes = []interface{}{
 	(*GameServerProtocol)(nil), // 0: protocol.GameServerProtocol
-	(*GameProtocolHeader)(nil), // 1: protocol.GameProtocolHeader
+	(*PlayCard)(nil),           // 1: protocol.PlayCard
+	(*PlayBid)(nil),            // 2: protocol.PlayBid
+	(*AccuseCheating)(nil),     // 3: protocol.AccuseCheating
+	(*GameProtocolHeader)(nil), // 4: protocol.GameProtocolHeader
+	(*Card)(nil),               // 5: protocol.Card
 }
 var file_protocol_game_server_protocol_proto_depIdxs = []int32{
-	1, // 0: protocol.GameServerProtocol.header:type_name -> protocol.GameProtocolHeader
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	4, // 0: protocol.GameServerProtocol.header:type_name -> protocol.GameProtocolHeader
+	1, // 1: protocol.GameServerProtocol.play_card:type_name -> protocol.PlayCard
+	2, // 2: protocol.GameServerProtocol.play_bid:type_name -> protocol.PlayBid
+	3, // 3: protocol.GameServerProtocol.accuse_cheating:type_name -> protocol.AccuseCheating
+	5, // 4: protocol.PlayCard.card:type_name -> protocol.Card
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_protocol_game_server_protocol_proto_init() }
@@ -132,6 +346,47 @@ func file_protocol_game_server_protocol_proto_init() {
 				return nil
 			}
 		}
+		file_protocol_game_server_protocol_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*PlayCard); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_protocol_game_server_protocol_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*PlayBid); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_protocol_game_server_protocol_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*AccuseCheating); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+	}
+	file_protocol_game_server_protocol_proto_msgTypes[0].OneofWrappers = []interface{}{
+		(*GameServerProtocol_PlayCard)(nil),
+		(*GameServerProtocol_PlayBid)(nil),
+		(*GameServerProtocol_AccuseCheating)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -139,7 +394,7 @@ func file_protocol_game_server_protocol_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_protocol_game_server_protocol_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

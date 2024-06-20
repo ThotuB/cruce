@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"log"
+	"cruce-server/src/utils/logger"
 	"net/http"
 )
 
@@ -13,16 +13,16 @@ const (
 )
 
 type HTTPLoggingMiddleware struct {
-	log *log.Logger
+	log logger.Logger
 }
 
-func NewHTTPLogginMiddleware(log *log.Logger) *HTTPLoggingMiddleware {
+func NewHTTPLogginMiddleware(log logger.Logger) *HTTPLoggingMiddleware {
 	return &HTTPLoggingMiddleware{
 		log: log,
 	}
 }
 
-func (self *HTTPLoggingMiddleware) Log(resp http.ResponseWriter, req *http.Request) (http.ResponseWriter, *http.Request) {
-	self.log.Printf(BLUE+"HTTP REQUEST"+RESET+" [%v %v %v]", req.Proto, req.Method, req.URL)
+func (m *HTTPLoggingMiddleware) Log(resp http.ResponseWriter, req *http.Request) (http.ResponseWriter, *http.Request) {
+	m.log.Infof(BLUE+"HTTP REQUEST"+RESET+" [%v %v %v]", req.Proto, req.Method, req.URL)
 	return resp, req
 }

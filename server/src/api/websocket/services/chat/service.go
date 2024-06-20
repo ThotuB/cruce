@@ -1,7 +1,7 @@
 package chat
 
 import (
-	"log"
+	"cruce-server/src/utils/logger"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -16,11 +16,11 @@ var upgrader = websocket.Upgrader{
 }
 
 type ChatService struct {
-	log  *log.Logger
+	log  logger.Logger
 	room *ChatRoom
 }
 
-func NewChatService(log *log.Logger, room *ChatRoom) *ChatService {
+func NewChatService(log logger.Logger, room *ChatRoom) *ChatService {
 	return &ChatService{
 		log:  log,
 		room: room,
@@ -30,7 +30,7 @@ func NewChatService(log *log.Logger, room *ChatRoom) *ChatService {
 func (self *ChatService) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	conn, err := upgrader.Upgrade(w, req, nil)
 	if err != nil {
-		self.log.Println("could not connect:\n", err)
+		self.log.Error("could not connect:\n", err)
 		return
 	}
 	client := NewClient(self.room, conn, make(chan []byte, 256))

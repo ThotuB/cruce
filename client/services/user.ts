@@ -6,4 +6,3 @@ export async function postUser(user: CreateUserRequest) {
 
     return await userClient.create(user, {})
 }
-

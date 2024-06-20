@@ -1,47 +1,46 @@
 import TextField from "components/common/TextField"
-import { useUser } from "contexts/UserContext";
-import { useState, useEffect, useRef } from "react";
+import { useUser } from "contexts/UserContext"
+import { MessageReceive, MessageSend } from "proto/protocol/chat/protocol_pb"
+import { useEffect, useRef, useState } from "react"
+import useWebSocket from "react-use-websocket"
+import { fromChatProto, toChatProto } from "utils/sockets"
 import { default as MMessage } from "./Message"
-import useWebSocket from 'react-use-websocket'
-import { fromChatProto, toChatProto } from "utils/sockets";
-import { MessageReceive, MessageSend } from "proto/protocol/chat/protocol_pb";
 
 const socketUrl = "ws://192.168.1.218:8083/chat"
 
 export default function Chat() {
-    const [messageHistory, setMessageHistory] = useState<MessageReceive[]>([]);
-    const [message, setMessage] = useState("");
+    const [messageHistory, setMessageHistory] = useState<MessageReceive[]>([])
+    const [message, setMessage] = useState("")
 
-    const messageRef = useRef<HTMLInputElement>(null);
+    const messageRef = useRef<HTMLInputElement>(null)
 
-    const { user } = useUser();
+    const { user } = useUser()
 
     const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl)
 
     useEffect(() => {
         if (lastMessage !== null) {
-            (lastMessage.data as Blob).arrayBuffer()
-                .then((data) => {
-                    const message = fromChatProto(new Uint8Array(data))
-                    if (!message) {
-                        return
-                    }
-                    switch (message.case) {
-                        case "messageReceive":
-                            setMessageHistory([...messageHistory, message.value])
-                            break
-                        case "messageHistory":
-                            setMessageHistory(message.value.messages)
-                            break
-                    }
-                })
+            ;(lastMessage.data as Blob).arrayBuffer().then((data) => {
+                const message = fromChatProto(new Uint8Array(data))
+                if (!message) {
+                    return
+                }
+                switch (message.case) {
+                    case "messageReceive":
+                        setMessageHistory([...messageHistory, message.value])
+                        break
+                    case "messageHistory":
+                        setMessageHistory(message.value.messages)
+                        break
+                }
+            })
             // const messageReceive = fromProto()
         }
     }, [lastMessage])
 
     const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key !== "Enter") {
-            return;
+            return
         }
         if (message.trim().length === 0) {
             return
@@ -52,18 +51,15 @@ export default function Chat() {
             messsage: message,
         })
 
-        setMessage("");
+        setMessage("")
         sendMessage(toChatProto(msg))
     }
 
     return (
-        <div className="flex-1 flex flex-col justify-end overflow-hidden">
-            <div className="flex-1 flex flex-col justify-end p-2 gap-2 overflow-y-auto">
+        <div className="flex flex-1 flex-col justify-end overflow-hidden">
+            <div className="flex flex-1 flex-col justify-end gap-2 overflow-y-auto p-2">
                 {messageHistory.map((message, index) => (
-                    <MMessage
-                        key={index}
-                        message={message}
-                    />
+                    <MMessage key={index} message={message} />
                 ))}
                 <div ref={messageRef} />
             </div>

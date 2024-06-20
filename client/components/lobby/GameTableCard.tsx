@@ -1,11 +1,15 @@
-import { LockClosedIcon, ClockIcon, StarIcon, MinusCircleIcon, PlusCircleIcon } from "@heroicons/react/solid"
 import { UserIcon } from "@heroicons/react/outline"
-import type { ITable, IUser } from "types/game"
-import { useUser } from "contexts/UserContext"
-import { Table } from "proto/table_pb";
+import {
+    ClockIcon,
+    LockClosedIcon,
+    MinusCircleIcon,
+    PlusCircleIcon,
+    StarIcon,
+} from "@heroicons/react/solid"
+import { Points, Table, Time } from "proto/table_pb"
 
-const GameTableCard: React.FC<{
-    table: Table,
+const GameModeItem: React.FC<{
+    table: Table
     onJoin: (table: Table) => void
 }> = ({ table, onJoin }) => {
     const full = table?.joined === 4
@@ -17,36 +21,83 @@ const GameTableCard: React.FC<{
         onJoin(table)
     }
 
+    console.log(table)
+
+    const points = tablePoints(table.points)
+    const time = tableTime(table.time)
+
     return (
-        <div className="w-full h-20 min-h-min">
-            <div className={`group rounded-xl flex w-full h-full overflow-hidden cursor-pointer ${full && 'pointer-events-none'}`}
-                onClick={handleJoinTable}
+        <div
+            className={`group flex w-full cursor-pointer overflow-hidden rounded-xl ${full && "pointer-events-none"}`}
+            onClick={handleJoinTable}
+        >
+            <div
+                className={`${full ? "bg-red-400" : "bg-purple-300"} w-3 ${transition} group-hover:bg-dark-1`}
+            />
+            <div
+                className={`grid grow grid-flow-row grid-cols-2 gap-y-1 bg-dark-1 py-2 px-3 ${transition} group-hover:bg-purple-300`}
             >
-                <div className={`${full ? "bg-red-400" : "bg-purple-300"} w-3 ${transition} group-hover:bg-dark-1`} />
-                <div className={`py-2 px-3 bg-dark-1 grow grid grid-flow-row grid-cols-2 ${transition} group-hover:bg-purple-300`}>
-                    <div className="font-bold text-xl">
-                        {table?.name}
-                    </div>
-                    <div className="justify-self-end">
-                        {table?.password && <LockClosedIcon className={`w-7 text-purple-300 ${transition} group-hover:text-dark-1`} />}
-                    </div>
-                    <div className="flex gap-1">
-                        {[...Array(table?.joined || 2)].map((_, index) => (
-                            <UserIcon key={index} className={`w-7 text-purple-300 ${transition} group-hover:text-dark-1`} />
-                        ))}
-                    </div>
-                    <div className="relative flex gap-1 justify-self-end text-xl font-semibold items-center">
-                        {table.iber && <PlusCircleIcon className={`w-6 text-purple-300 ${transition} group-hover:text-dark-1`} />}
-                        {table.cheating && <MinusCircleIcon className={`w-6 text-purple-300 ${transition} group-hover:text-dark-1`} />}
-                        {table.points}
-                        <StarIcon className={`w-7 text-purple-300 ${transition} group-hover:text-dark-1`} />
-                        {table.time}
-                        <ClockIcon className={`w-6 text-purple-300 ${transition} group-hover:text-dark-1`} />
-                    </div>
+                <div className="text-xl font-bold">{table.name}</div>
+                <div className="justify-self-end">
+                    {table?.password && (
+                        <LockClosedIcon
+                            className={`w-7 text-purple-300 ${transition} group-hover:text-dark-1`}
+                        />
+                    )}
+                </div>
+                <div className="flex gap-1">
+                    {[...Array(table?.joined || 2)].map((_, index) => (
+                        <UserIcon
+                            key={index}
+                            className={`w-7 text-purple-300 ${transition} group-hover:text-dark-1`}
+                        />
+                    ))}
+                </div>
+                <div className="relative flex items-center gap-1 justify-self-end text-xl font-semibold">
+                    {table.iber && (
+                        <PlusCircleIcon
+                            className={`w-6 text-purple-300 ${transition} group-hover:text-dark-1`}
+                        />
+                    )}
+                    {table.cheating && (
+                        <MinusCircleIcon
+                            className={`w-6 text-purple-300 ${transition} group-hover:text-dark-1`}
+                        />
+                    )}
+                    {points}p
+                    <StarIcon
+                        className={`w-7 text-purple-300 ${transition} group-hover:text-dark-1`}
+                    />
+                    {time}s
+                    <ClockIcon
+                        className={`w-6 text-purple-300 ${transition} group-hover:text-dark-1`}
+                    />
                 </div>
             </div>
         </div>
     )
 }
 
-export default GameTableCard
+const tablePoints = (points: Points) => {
+    switch (points) {
+        case Points.POINTS_6:
+            return 6
+        case Points.POINTS_11:
+            return 11
+        case Points.POINTS_21:
+            return 21
+    }
+}
+
+const tableTime = (time: Time) => {
+    switch (time) {
+        case Time.TIME_5S:
+            return 5
+        case Time.TIME_15S:
+            return 15
+        case Time.TIME_30S:
+            return 30
+    }
+}
+
+export default GameModeItem

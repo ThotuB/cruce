@@ -8,7 +8,7 @@ service TableService {
 	rpc Create(CreateTableRequest) returns (CreateTableResponse);
 	rpc Join(JoinTableRequest) returns (JoinTableResponse);
 	rpc Leave(LeaveTableRequest) returns (LeaveTableResponse);
-	rpc Get(GetTableRequest) returns (GetTableResponse); 
+	rpc Get(GetTableRequest) returns (GetTableResponse);
 	rpc ListAll(ListAllTablesRequest) returns (ListAllTablesResponse);
 }
 
@@ -52,17 +52,19 @@ message ListAllTablesResponse {
 
 message Table {
 	int32 id = 1;
-	GameMode mode = 2;
-	Points points = 3;
-	Time time = 4;
-	bool iber = 5;
-	bool cheating = 6;
-	optional string password = 7;
-
+	string name = 2;
+	GameMode mode = 3;
+	Points points = 4;
+	Time time = 5;
+	bool iber = 6;
+	bool cheating = 7;
+	optional string password = 8;
 }
 
 message JoinTableRequest {
-	int32 id = 1;
+	int32 table_id = 1;
+	string user_id = 2;
+	optional string password = 3;
 }
 
 message JoinTableResponse {}

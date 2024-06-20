@@ -1,11 +1,11 @@
-import { useQuery } from '@tanstack/react-query'
-import { PlayerPov } from 'proto/protocol/game/protocol_pb'
-import { useEffect } from 'react'
-import useWebSocket, { ReadyState } from 'react-use-websocket'
-import { fromGameProto, toGameProto } from 'utils/sockets'
+import { useQuery } from "@tanstack/react-query"
+import { PlayerPov } from "proto/protocol/game/client_protocol_pb"
+import { useEffect } from "react"
+import useWebSocket, { ReadyState } from "react-use-websocket"
+import { fromGameProto, GameServerMessage, toGameProto } from "utils/sockets"
 
 interface ProtoSocketHook {
-    sendProtoMessage: () => void
+    sendProtoMessage: (message?: GameServerMessage) => void
     lastProtoMessage: PlayerPov | null
     readyState: ReadyState
 }
@@ -22,7 +22,9 @@ const useProtoSocket = (url: string): ProtoSocketHook => {
             }
 
             if (!(lastMessage.data instanceof Blob)) {
-                throw new Error(`message was not of type Blob: ${typeof lastMessage.data}`)
+                throw new Error(
+                    `message was not of type Blob: ${typeof lastMessage.data}`,
+                )
             }
 
             const data = await lastMessage.data.arrayBuffer()
@@ -34,7 +36,7 @@ const useProtoSocket = (url: string): ProtoSocketHook => {
             return message
         },
         initialData: null,
-        enabled: readyState == ReadyState.OPEN
+        enabled: readyState == ReadyState.OPEN,
     })
 
     useEffect(() => {
@@ -44,15 +46,17 @@ const useProtoSocket = (url: string): ProtoSocketHook => {
         refetch()
     }, [lastMessage])
 
-    const sendProtoMessage = () => {
-        const byteMessage = toGameProto()
+    const sendProtoMessage = (
+        message: GameServerMessage = { case: undefined },
+    ) => {
+        const byteMessage = toGameProto(message)
         sendMessage(byteMessage)
     }
 
     return {
         sendProtoMessage,
         lastProtoMessage,
-        readyState
+        readyState,
     }
 }
 
