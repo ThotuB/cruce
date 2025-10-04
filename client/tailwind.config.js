@@ -7,6 +7,9 @@ module.exports = {
     ],
     theme: {
         extend: {
+            aspectRatio: {
+                'card': '14 / 24',
+            },
             colors: {
                 dark: {
                     1: "#202225",

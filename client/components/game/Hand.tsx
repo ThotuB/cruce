@@ -1,6 +1,6 @@
 import { useGame, useTable } from "contexts/GameContext"
 import { CardState } from "proto/protocol/game/client_protocol_pb"
-import Card from "./Card"
+import PlayableCard from "./PlayableCard"
 
 export default function Hand() {
     const { handCards } = useGame()
@@ -13,7 +13,7 @@ export default function Hand() {
                 const isDisabled = card.state == CardState.DISABLED && !cheating
 
                 return (
-                    <Card
+                    <PlayableCard
                         key={index}
                         index={index}
                         card={card.card!}

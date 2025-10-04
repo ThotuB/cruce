@@ -70,6 +70,7 @@ func (gs *GameState) RoundOver() {
 
 	winningTeam := gs.winningTeam(gs.rules)
 	if winningTeam == nil {
+		gs.log.Debug("New round")
 		gs.RoundNum++
 		gs.Round = NewRoundState(gs.log, gs, (int(gs.RoundNum)-1)%4)
 		return

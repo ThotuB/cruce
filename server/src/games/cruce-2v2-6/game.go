@@ -21,7 +21,7 @@ type Game struct {
 	players [4]*games.Player
 	joined  uint
 	state   GameStates
-	game    GameState
+	game    *GameState
 }
 
 func NewGame(log logger.Logger, rules games.Rules) Game {
@@ -31,7 +31,7 @@ func NewGame(log logger.Logger, rules games.Rules) Game {
 		players: [4]*games.Player{nil, nil, nil, nil},
 		joined:  0,
 		state:   WAITING_FOR_PLAYERS,
-		game:    *NewGameState(log, rules),
+		game:    NewGameState(log, rules),
 	}
 }
 

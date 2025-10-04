@@ -1,5 +1,6 @@
 import { useGame } from "contexts/GameContext"
 import { CardSuit } from "proto/protocol/game/misc_pb"
+import { trumpImagePath } from "utils/cards"
 
 export default function Trump() {
     const { trump } = useGame()
@@ -11,7 +12,7 @@ export default function Trump() {
     return (
         <div className="absolute flex h-full w-full items-center justify-center">
             <div
-                className={`flex h-36 w-36 items-center justify-center rounded-full border-4 border-purple-300 bg-dark-1 transition-opacity
+                className={`flex h-36 w-36 items-center justify-center rounded-full border-4 border-dark-1 bg-white transition-opacity
                     ${trumpExists ? "" : "opacity-0"}`}
             >
                 <TrumpImage trump={trump} />
@@ -21,20 +22,8 @@ export default function Trump() {
 }
 
 const TrumpImage: React.FC<{ trump: CardSuit }> = ({ trump }) => {
-    const fileName = toPngFileName(trump)
+    const fileName = trumpImagePath("original", trump)
 
-    return <img src={`/${fileName}.png`} alt="trump" />
+    return <img src={fileName} alt="trump" />
 }
 
-const toPngFileName = (trump: CardSuit) => {
-    switch (trump) {
-        case CardSuit.DUBA:
-            return "D"
-        case CardSuit.ROSU:
-            return "R"
-        case CardSuit.VERDE:
-            return "V"
-        case CardSuit.GHINDA:
-            return "G"
-    }
-}

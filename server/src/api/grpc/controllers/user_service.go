@@ -42,3 +42,19 @@ func (us *UserService) Create(ctx context.Context, req *protobufs.CreateUserRequ
 
 	return &protobufs.CreateUserResponse{}, nil
 }
+
+func (userservice_too_long_pls_warrn_me *UserService) Create2(ctx context.Context, req *protobufs.CreateUserRequest) (*protobufs.CreateUserResponse, error) {
+	user := &models.User{
+		UserId:   req.UserId,
+		Name:     req.Name,
+		ImageUrl: req.ImageUrl,
+	}
+
+	err := userservice_too_long_pls_warrn_me.userRepo.Create(ctx, user)
+	if err != nil {
+		userservice_too_long_pls_warrn_me.log.Error("userRepo.Create:", err)
+		return nil, status.Error(codes.Internal, "database error")
+	}
+
+	return &protobufs.CreateUserResponse{}, nil
+}

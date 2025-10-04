@@ -1,7 +1,10 @@
 import { useGame } from "contexts/GameContext"
 import { useWindowDimensions } from "hooks/hooks"
 import { CardSuit, CardValue } from "proto/protocol/game/misc_pb"
-import CardImage from "./CardImage"
+import CardImage from "components/cards/CardImage"
+import Card from "./Card"
+
+const DEGS = [0, -30, 0, 30]
 
 export default function Table() {
     const { playedCards } = useGame()
@@ -13,18 +16,20 @@ export default function Table() {
     return (
         <>
             {playedCards.map((tableCard, index) => {
+                if (!tableCard.card) return null
+
                 const position = -index
                 const rad = ((position - 1) * Math.PI) / 2
-                const deg = (rad * 180) / Math.PI
                 const x = radius * Math.cos(rad)
                 const y = -radius * Math.sin(rad)
 
-                const style = {
-                    width: `${radius * 0.8}px`,
-                    transform: `translate(${x}px, ${y}px) rotate(${deg + 90}deg)`,
+                const cardStyle = {
+                    width: `${radius * 0.6}px`,
                 }
 
-                if (!tableCard.card) return null
+                const containerStyle = {
+                    transform: `translate(${x}px, ${y}px) rotate(${DEGS[index]}deg)`,
+                }
 
                 const card = tableCard.card
 
@@ -32,30 +37,12 @@ export default function Table() {
                     <div
                         className="absolute flex h-full w-full items-center justify-center"
                         key={index}
+                        style={containerStyle}
                     >
-                        <div
-                            className="rounded-3xl bg-dark-1 p-4 shadow-lg"
-                            style={style}
-                        >
-                            <MiniCard suit={card.suit} value={card.value} />
-                        </div>
+                        <Card suit={card.suit} value={card.value} cardStyle={cardStyle} containerClassName="p-2" cardClassName="" />
                     </div>
                 )
             })}
         </>
     )
 }
-
-const MiniCard: React.FC<{
-    suit: CardSuit
-    value: CardValue
-}> = ({ suit, value }) => (
-    <div className="flex h-full w-full flex-col justify-center divide-y divide-purple-300 overflow-hidden rounded-xl border border-purple-300">
-        <div>
-            <CardImage suit={suit} value={value} />
-        </div>
-        <div>
-            <CardImage className="rotate-180" suit={suit} value={value} />
-        </div>
-    </div>
-)
